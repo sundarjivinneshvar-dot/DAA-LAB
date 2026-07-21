@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min & Max using Divide and Conquer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        pre {
+            background: #eee;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #007BFF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Min & Max using Divide and Conquer</h2>
+
+    <label>Enter numbers separated by commas:</label><br><br>
+
+    <input type="text" id="arrayInput"
+           value="3,1,7,4,9,2,8,5,6,0">
+
+    <button onclick="runProgram()">Find Min & Max</button>
+
+    <pre id="result"></pre>
+
+    <div id="tableDiv"></div>
+</div>
+
+<script>
+
+let comparisonCount = 0;
+
+function minMaxDC(arr, low, high){
+
+    if(low === high){
+        return {min: arr[low], max: arr[low]};
+    }
+
+    if(high === low + 1){
+        comparisonCount++;
+        if(arr[low] < arr[high]){
+            return {min: arr[low], max: arr[high]};
+        }
+        return {min: arr[high], max: arr[low]};
+    }
+
+    let mid = Math.floor((low + high)/2);
+
+    let left = minMaxDC(arr, low, mid);
+    let right = minMaxDC(arr, mid+1, high);
+
+    comparisonCount++;
+    let overallMin = (left.min < right.min) ? left.min : right.min;
+
+    comparisonCount++;
+    let overallMax = (left.max > right.max) ? left.max : right.max;
+
+    return {min: overallMin, max: overallMax};
+}
+
+function minMaxNaive(arr){
+
+    let mn = arr[0];
+    let mx = arr[0];
+    let comps = 0;
+
+    for(let i=1;i<arr.length;i++){
+
+        comps++;
+        if(arr[i] < mn)
+            mn = arr[i];
+
+        comps++;
+        if(arr[i] > mx)
+            mx = arr[i];
+    }
+
+    return {min: mn, max: mx, comps: comps};
+}
+
+function randomArray(size){
+    let arr = [];
+    for(let i=0;i<size;i++){
+        arr.push(Math.floor(Math.random()*10000)+1);
+    }
+    return arr;
+}
+
+function runProgram(){
+
+    let input = document.getElementById("arrayInput").value;
+
+    let arr = input.split(",").map(Number);
+
+    comparisonCount = 0;
+
+    let dc = minMaxDC(arr,0,arr.length-1);
+
+    let dcComps = comparisonCount;
+
+    let naive = minMaxNaive(arr);
+
+    let output = "";
+    output += "Array : " + arr.join(", ") + "\n";
+    output += "Minimum : " + dc.min + "\n";
+    output += "Maximum : " + dc.max + "\n";
+    output += "D&C Comparisons : " + dcComps + "\n";
+    output += "Naive Comparisons : " + naive.comps;
+
+    document.getElementById("result").textContent = output;
+
+    let sizes = [10,100,1000,10000];
+
+    let table = `
+    <table>
+    <tr>
+        <th>Size</th>
+        <th>D&C Comparisons</th>
+        <th>Naive Comparisons</th>
+        <th>Formula (3n/2 - 2)</th>
+    </tr>`;
+
+    for(let s of sizes){
+
+        let a = randomArray(s);
+
+        comparisonCount = 0;
+
+        minMaxDC(a,0,a.length-1);
+
+        let dcCount = comparisonCount;
+
+        let naiveCount = minMaxNaive(a).comps;
+
+        let formula = Math.floor((3*s)/2)-2;
+
+        table += `
+        <tr>
+            <td>${s}</td>
+            <td>${dcCount}</td>
+            <td>${naiveCount}</td>
+            <td>${formula}</td>
+        </tr>`;
+    }
+
+    table += "</table>";
+
+    document.getElementById("tableDiv").innerHTML = table;
+}
+
+</script>
+
+</body>
+</html>
